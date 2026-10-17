@@ -1,0 +1,27 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  check:
+    name: links and tools
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: gofmt
+        run: test -z "$(gofmt -l .)"
+      - name: vet
+        run: go vet ./...
+      - name: test (100% coverage)
+        run: |
+          go test -race -coverprofile=cover.out ./...
+          go tool cover -func=cover.out | tail -1
+          go tool cover -func=cover.out | tail -1 | grep -q '100.0%'
+      - name: every relative link resolves
+        run: go run ./tools/checklinks .

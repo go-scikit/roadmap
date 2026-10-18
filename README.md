@@ -1,7 +1,7 @@
 # roadmap
 
 What the [go-scikit](https://go-scikit.github.io/) stack must add to reach feature parity with
-MATLAB and Mathematica, where each piece lives, and how far it has got.
+MATLAB, Mathematica and Maple, where each piece lives, and how far it has got.
 
 - [PLAN.md](PLAN.md) — the rules every work item follows, the home of each domain, and the
   order of the work in four waves.
@@ -19,6 +19,9 @@ MATLAB and Mathematica, where each piece lives, and how far it has got.
   - [systems, units, file formats and visualisation](bib/systems-units-formats-visualization.md)
   - [code shared with the pure-Go Ruby](bib/ruby-reuse.md) — where go-embedded-ruby and the
     go-ruby-* gems duplicate go-scikit code, and which side should own each piece
+  - [Maple](bib/maple.md) — only what Maple adds to the two inventories above: ODE/PDE solving,
+    algebraic numbers, triangular and differential algebra, code generation to Go, tensors,
+    groups, and MapleSim-style modelling
   - [template](bib/TEMPLATE.md) for a new domain
 
 `go run ./tools/checklinks` checks that every relative link in the tree resolves; CI runs it.

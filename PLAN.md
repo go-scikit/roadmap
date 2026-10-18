@@ -1,9 +1,11 @@
-# Parity plan: go-scikit and MATLAB / Mathematica
+# Parity plan: go-scikit and MATLAB / Mathematica / Maple
 
-What the go-scikit stack must add to cover what MATLAB (base and toolboxes) and Mathematica
-offer, in which order, and where each piece lives. The evidence (function inventories,
+What the go-scikit stack must add to cover what MATLAB (base and toolboxes), Mathematica and
+Maple offer, in which order, and where each piece lives. The evidence (function inventories,
 algorithms, reference implementations and licences, validation oracles and corpora) is in
-[`bib/`](bib/), one file per domain.
+[`bib/`](bib/), one file per domain. Maple is covered as a delta over the other two, in
+[`bib/maple.md`](bib/maple.md): symbolic ODE/PDE solving, algebraic numbers, triangular and
+differential algebra, code generation, tensors and groups, and MapleSim-style modelling.
 
 ## Rules every work item follows
 
@@ -35,7 +37,7 @@ domain has no home; all thirteen were created on 2026-10-17.
 | filter design and filtering, spectral estimation, resampling, wavelets, audio I/O | **go-dsp** | new org |
 | image processing (float/N-D images, morphology, labelling, watershed, Hough/Radon, registration) | go-images/images | exists |
 | arbitrary precision (correct rounding, ball arithmetic, N-digit special functions), number theory, Go oracle harness | **go-bignum** | new org |
-| computer algebra (expressions, polynomials, GCD/factorisation, Gröbner, differentiation, integration, series, limits, solve) | **go-symbolic** | new org |
+| computer algebra (expressions, polynomials, GCD/factorisation, Gröbner, differentiation, integration, series, limits, solve) and, from Maple, code generation to Go (`codegen`), algebraic numbers (`algnum`), ODE/PDE solving (`ode`, `pde`), triangular decomposition and CAD (`triangular`), differential algebra (`diffalg`), symbolic random variables (`stats`), permutation groups (`group`), tensors and Lie algebras (`tensor`) | **go-symbolic** | new org |
 | constrained, quadratic, integer and global optimisation (LP simplex, interior point and presolve exist) | go-numerics/optimize | exists |
 | regression models (GLM, ANOVA tables), time series | go-statistics (`models`, `timeseries`) | exists |
 | machine learning (clustering, classification, model selection) | **go-mlkit** | new org |
@@ -44,11 +46,11 @@ domain has no home; all thirteen were created on 2026-10-17.
 | finite elements and PDE solvers | **go-fem** | new org |
 | graph algorithms | **go-graphalgo** | new org |
 | graph layout | go-graphdrawing | exists (empty) |
-| control systems, DAE solvers | **go-control** | new org |
-| units and physical constants | **go-units** | new org |
+| control systems, DAE solvers, MapleSim-style symbolic acausal modelling (`model`) | **go-control** | new org |
+| units and physical constants (plus user-defined unit systems: EMU, ESU, atomic) | **go-units** | new org |
 | scientific file formats (HDF5, MAT v4–v7.3, NetCDF, FITS, npy, Matrix Market, WAV/FLAC) | **go-sciio** | new org |
 | 3D plots, isosurfaces | go-plot (`plot3d`) over go-gfx | exist |
-| interactive notebooks (`Manipulate`: sliders re-running dependent cells) | go-notebook/notebook | exists |
+| interactive notebooks (`Manipulate`: sliders re-running dependent cells; Maple-style 2-D math input with go-tex/math rendering) | go-notebook/notebook | exists |
 
 Until an organisation exists, its first repository is incubated locally under its future module
 path, tested locally, and published through `ghnew` and a pull request once the organisation is
@@ -89,7 +91,7 @@ Ordered by what each unlocks and by dependencies; sizes from the `bib/` files.
 16. go-graphalgo (matching, isomorphism, communities, the centralities gonum lacks; gonum/graph
     already has max flow and betweenness — reuse, don't rewrite) and go-graphdrawing layouts.
 
-**Wave 4 — Mathematica's core**
+**Wave 4 — Mathematica's core, and what Maple adds**
 17. go-bignum ball arithmetic and N-digit special functions; number theory, seeded from
     go-ruby-prime's Miller–Rabin, Baillie–PSW, Pollard rho and sieve rather than rewritten
     (see [bib/ruby-reuse.md](bib/ruby-reuse.md)).
@@ -101,9 +103,22 @@ decimal BigDecimal) and calls go-scikit for the rest. Changes inside rbgo and th
 repositories are proposed to the sessions that own them.
 18. go-symbolic: expression DAG, polynomials over Z/Q/F_p, GCD and factorisation,
     differentiation, LaTeX through go-tex; then Gröbner bases, integration, series, limits.
+19. go-symbolic/codegen, right after the CAS core (expression DAG and `diff`): expressions to
+    Go source with common-subexpression elimination, pluggable targets, C/Fortran emitters as
+    test oracles only (Maple `CodeGeneration`, `codegen[optimize]`). (M)
+20. go-symbolic, Maple delta after the core: `algnum` (RootOf/evala-style algebraic numbers),
+    modular linear algebra, `ode` (classification, Lie symmetries, Kovacic; verifier first)
+    then `pde`, `triangular` (regular chains, CAD), `diffalg`, `stats` (symbolic random
+    variables). (L to XL each)
+21. go-symbolic `group` (Schreier–Sims) then `tensor` (index canonicalisation, curvature
+    tensors, Lie algebras); go-units user-defined unit systems; go-notebook 2-D math input.
+22. go-control/model, after the DAE solver and go-symbolic: MapleSim-style symbolic acausal
+    modelling (equation assembly, Pantelides, BLT, emission through `codegen`). (XL)
 
-Not planned: Mathematica's curated data (`Entity`, `CountryData`, …) and GPU computing (no
-realistic pure-Go path).
+Not planned: Mathematica's curated data (`Entity`, `CountryData`, …), GPU computing (no
+realistic pure-Go path), and from Maple the `.mw` document format round-trip and MapleSim's
+proprietary component libraries. No Maple item needs a new organisation; Maple is never run as
+an oracle (proprietary), free oracles are listed in [`bib/maple.md`](bib/maple.md).
 
 ## Status
 

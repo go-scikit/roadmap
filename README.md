@@ -22,6 +22,9 @@ MATLAB, Mathematica and Maple, where each piece lives, and how far it has got.
   - [Maple](bib/maple.md) — only what Maple adds to the two inventories above: ODE/PDE solving,
     algebraic numbers, triangular and differential algebra, code generation to Go, tensors,
     groups, and MapleSim-style modelling
+  - [Julia](bib/julia.md) — bibliography and feasibility plan for go-embedded-julia, a pure-Go
+    Julia interpreter over lowered IR for go-notebook cells and the WebAssembly playground:
+    parser, lowering, runtime boundary (94 intrinsics, 896 `ccall` sites in Base), milestones
   - [template](bib/TEMPLATE.md) for a new domain
 
 `go run ./tools/checklinks` checks that every relative link in the tree resolves; CI runs it.

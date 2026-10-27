@@ -24,7 +24,12 @@ MATLAB, Mathematica and Maple, where each piece lives, and how far it has got.
     groups, and MapleSim-style modelling
   - [Julia](bib/julia.md) — bibliography and feasibility plan for go-embedded-julia, a pure-Go
     Julia interpreter over lowered IR for go-notebook cells and the WebAssembly playground:
-    parser, lowering, runtime boundary (94 intrinsics, 896 `ccall` sites in Base), milestones
+    parser, lowering, runtime boundary (896 `ccall` sites in Base), milestones
+  - [Julia runtime (M3)](bib/julia-runtime.md) — the Core runtime against julia v1.12.6: what
+    `interpreter.c` executes, the contract with the lowered IR, 63 builtins, 93 intrinsics,
+    subtyping and dispatch, package layout, exit tests; corrects the counts of the plan above
   - [template](bib/TEMPLATE.md) for a new domain
 
 `go run ./tools/checklinks` checks that every relative link in the tree resolves; CI runs it.
+`go run ./tools/jlcount <julia-source-root>` counts the builtins, intrinsics and core C lines of a
+julia source tree, the figures `bib/julia-runtime.md` quotes.

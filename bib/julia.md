@@ -1,6 +1,13 @@
 # Julia — bibliography and feasibility plan for a pure-Go, embeddable Julia
 
 Written 2026-10-26. Facts only, each with a source; counts come from the sources, not from estimates.
+
+> **Correction, 2026-10-27.** The counts below were taken on julia master (`1.15.0-DEV`), not
+> on **v1.12.6**, the release go-embedded-julia is pinned to. On v1.12.6 there are 63 builtins
+> (not 83), 93 intrinsics (not 94) and 29 963 lines in the 15 core C files (not 36 477); M2 ports
+> `julia-syntax.scm`, not JuliaLowering (§2.3), because v1.12.6 lowers with it by default; and
+> the go-ndarray stride question of §10 is answered. The full table, and the M3 runtime design,
+> are in [`julia-runtime.md`](julia-runtime.md) §1.
 Goal: a Julia interpreter written in Go (working name **go-embedded-julia**, "jlgo") that backs
 ` ```julia ` cells in go-notebook and its WebAssembly playground, the way
 [rbgo](https://github.com/go-embedded-ruby/ruby) backs ` ```ruby ` cells. No code exists; the

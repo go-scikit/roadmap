@@ -31,6 +31,10 @@ MATLAB, Mathematica and Maple, where each piece lives, and how far it has got.
   - [C and C++](bib/c-cpp.md) — feasibility plan for go-embedded-c and go-embedded-cpp: C cells
     on the cc/v4 front end compiled to wasm32 and run on wazero or the browser engine, with
     wasi-libc; C++ cells as clang-repl compiled to wasm on the same runtime, behind a measured gate
+  - [R](bib/r.md) — bibliography and feasibility plan for go-embedded-r, a pure-Go R interpreter
+    for go-notebook cells, counted on the R 4.6.2 release: 210 primitives and 563 internals,
+    the GPL boundary and what is portable, the CRAN native-code wall (15 % of CRAN runnable
+    without compiled code), oracle harness, milestones
   - [template](bib/TEMPLATE.md) for a new domain
 
 `go run ./tools/checklinks` checks that every relative link in the tree resolves; CI runs it.
@@ -39,3 +43,6 @@ julia source tree, the figures `bib/julia-runtime.md` quotes.
 `go run ./tools/srccount [--ext .c,.h] [--contains text] <path>...` counts files, lines and bytes
 under source paths, and `go run ./tools/wasmimports <file.wasm>` validates a module with wazero
 and lists what its host must provide; `bib/c-cpp.md` quotes both.
+`go run ./tools/rcount [--cran PACKAGES] <R-source-root>` counts the primitives, internals,
+grammar, opcodes, lines per language and native call sites of an R release tarball, and with a
+CRAN `PACKAGES` index how much of CRAN needs compiled code: the figures `bib/r.md` quotes.

@@ -219,10 +219,9 @@ GPL = oracle only. Three options:
 | **B. GPL port** | GPL-2+ (C may then be translated) | shipped | GPL-3 binaries, like webR (`LICENSE.md:15`) | fastest and most faithful; makes go-notebook binaries that embed it GPL; breaks the fleet's BSD-3 rule |
 | **C. BSD interpreter, R code fetched** | BSD-3, clean-room (primitives, internals, parser, evaluator written from R-lang, R-ints, Rd pages and oracle behaviour; no `src/main` file open while its Go counterpart is written) | **not redistributed**: fetched from the pinned CRAN tarball on first use, checked against its SHA-256, cached — the go-tex/texmf pattern ("it redistributes nothing … a download is not a redistribution", fleet capability map) | the browser fetches the R files from a CORS-enabled mirror, then evaluates them (or a cached snapshot built on that machine) | the interpreter is the large part; base R code runs unchanged, so upstream fixes come for free |
 
-Recommendation: **C**, with B kept as the fallback if C's legal reading does not hold. This is
-a licence question to put to the user before M2 (§6): this file does not settle it. Under C the
-start-up image of `julia.md` §6 must be built on the user's machine (it contains GPL code),
-never shipped.
+This file recommended **C**, with B as the fallback, and put the licence question to the user.
+**Decision (2026-11-01, user): A with BSD** — base R's R code is rewritten under BSD; C and B are
+rejected (§6). Under A the start-up image of `julia.md` §6 contains no GPL code and may be shipped.
 
 ### 2.7 Graphics: an SVG device
 
@@ -342,7 +341,7 @@ created by this file; names follow the go-embedded-julia layout.
 |---|---|---|---|---|---|---|
 | M0 | oracle harness + RDS (serialize v3) reader/writer | go-embedded-r/r (`rds/`, `internal/oracle`) | conda-forge r-base 4.6.2 | S | 1 | golden values round-trip R → Go → R; RDS fuzzed |
 | M1 | lexer + parser, srcrefs, `deparse` | go-embedded-r/r (`syntax/`) | M0 | M | 1 | `getParseData` + `deparse` identical on the 724 + 95 files and on CRAN sources; fuzzed with depth and size bounds |
-| M2 | evaluator core: SEXPs, environments, promises, matching, closures, contexts/conditions, S3, the 210 primitives | go-embedded-r/r (`eval/`, `prim/`) | M1; **licence decision** (§2.6) | XL | 1 | `tests/simple-true.R`, `arith-true.R`, `eval-etc.R`, `any-all.R`, `method-dispatch.R` against `.Rout.save` |
+| M2 | evaluator core: SEXPs, environments, promises, matching, closures, contexts/conditions, S3, the 210 primitives | go-embedded-r/r (`eval/`, `prim/`) | M1; licence decided (§6: BSD, base rewritten) | XL | 1 | `tests/simple-true.R`, `arith-true.R`, `eval-etc.R`, `any-all.R`, `method-dispatch.R` against `.Rout.save` |
 | M3 | base: the 563 internals in reach order, base R code loaded per §2.6, lazy-load/start-up snapshot | go-embedded-r/r (`internal/…`, `base/`) | M2 | XL | 1 | `base` loads; `reg-tests-1*.R`, `print-tests.R`, `datetime*.R`, `complex.R`, `iec60559.R`, `utf8-regex.R`; base Rd examples |
 | M4 | stats, utils, methods: Rmath on go-statistics/go-numerics, R RNG streams, `lm`/`glm` (dqrdc2 rule), `optim`, `nls`, formulas and model frames; S4 | go-embedded-r/r (`stats/`), kernels into go-ndarray / go-statistics / go-numerics | M3 | XL | 2 | `d-p-q-r-tests.R`, `p-r-random-tests.R` (streams exact), `lm-tests.R`, `lapack.R`, `reg-S4.R`; stats Rd examples |
 | M4b | regex: TRE port (`perl=FALSE`, `agrep`) and PCRE2 front end on go-regexp/engine | go-regexp (new `tre` repo) + go-regexp/engine | — | M | 2 | `tests/utf8-regex.R`, `PCRE.R`, base `grep`/`regexpr`/`gsub` examples |
@@ -365,11 +364,18 @@ register Go functions as R closures in their own namespace.
 
 ## 6. Risks and open questions
 
-- **Biggest risk: the licence of base R** (§2.6). Option C's premise, that a BSD interpreter may
-  fetch and run unmodified GPL R code it does not redistribute, is a legal reading, not a
-  verified opinion. If it fails, the choice is between A (rewrite ≈ 100 000 lines of R whose
-  behaviour defines the language — Riposte's unfinished road) and B (GPL, like every
-  implementation that reached real code). Decide before M2.
+- **Licence of base R: decided 2026-11-01 (user): option A, BSD-3-Clause.** The whole
+  repository is BSD; the R code of the base packages (≈ 100 000 lines, §2.6) is **rewritten under
+  BSD, never copied and never downloaded at run time**. Option C (fetch the GPL code on first use,
+  on a legal reading that was never verified) and option B (GPL) are **rejected**. GNU R stays the
+  oracle only: no R source, test file, help page or `.Rout.save` is committed, and goldens are
+  R's outputs for inputs written in the repository. The rule is in the repository's README,
+  NOTICE and CONTRIBUTING from the first commit
+  ([go-embedded-r/r#1](https://github.com/go-embedded-r/r/pull/1)). The cost is the one §2.6
+  priced for A: rewriting 23 469 + 36 490 + 23 589 + 18 015 lines of R whose behaviour *is* the
+  definition of R, from R-lang, R-ints, the Rd pages and the oracle, with Riposte's unfinished
+  road as the warning. The M2 gate "licence decision" is therefore lifted; the start-up image is
+  built from our own base code and may be shipped.
 - **The CRAN wall** (§1.4): 15 % of CRAN runs on a pure interpreter; 100 Go package ports reach
   39 %. "R in the notebook" must be promised as base + recommended-like numerics + the ported
   set, not as CRAN.

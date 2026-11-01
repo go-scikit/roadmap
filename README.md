@@ -28,8 +28,14 @@ MATLAB, Mathematica and Maple, where each piece lives, and how far it has got.
   - [Julia runtime (M3)](bib/julia-runtime.md) — the Core runtime against julia v1.12.6: what
     `interpreter.c` executes, the contract with the lowered IR, 63 builtins, 93 intrinsics,
     subtyping and dispatch, package layout, exit tests; corrects the counts of the plan above
+  - [C and C++](bib/c-cpp.md) — feasibility plan for go-embedded-c and go-embedded-cpp: C cells
+    on the cc/v4 front end compiled to wasm32 and run on wazero or the browser engine, with
+    wasi-libc; C++ cells as clang-repl compiled to wasm on the same runtime, behind a measured gate
   - [template](bib/TEMPLATE.md) for a new domain
 
 `go run ./tools/checklinks` checks that every relative link in the tree resolves; CI runs it.
 `go run ./tools/jlcount <julia-source-root>` counts the builtins, intrinsics and core C lines of a
 julia source tree, the figures `bib/julia-runtime.md` quotes.
+`go run ./tools/srccount [--ext .c,.h] [--contains text] <path>...` counts files, lines and bytes
+under source paths, and `go run ./tools/wasmimports <file.wasm>` validates a module with wazero
+and lists what its host must provide; `bib/c-cpp.md` quotes both.

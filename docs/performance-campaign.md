@@ -105,13 +105,13 @@ What the count is not:
 |---|---|---|---|---|---|
 | go-dsp/signal | `perf_test.go`, `docs/perf.md` | yes | yes | checked before each case (< 8) | best of 5; the model to generalise |
 | go-statistics/stats | `perf_scipy_test.go`, `perf_test.go`, `perf_all_test.go`, `docs/perf.md` | yes (+ all-cores column) | yes, case by case | load in the table header only | median of 7; SciPy through `uv`, one JSON line per request; 355 cases, **236 slower than SciPy**, 51 of them because of go-numerics/special and 25 because of go-ndarray's generator (its `docs/perf.md`) |
-| go-numerics/special | `nd/perf_test.go`, `bench/scipy_server.py`, `docs/perf.md` | scalar column yes | yes | load in the header (7.67 at the last run) | the Go scalar loop is **0.19× to 0.40×** SciPy's speed on every row read (Gamma … ErfInv) |
+| go-numerics/special | `nd/perf_test.go`, `bench/scipy_server.py`, `docs/perf.md` | scalar column yes | yes | load in the header (7.67 at the last run) | the Go scalar loop is **0.07× to 0.70×** SciPy's speed on all 31 rows (BetaInc and Kv 0.07×, Zeta 0.70×), attributed by the page to double-double arithmetic (go-numerics/special#33) |
 | go-ndarray/ndarray | `docs/perf.md`, `benchmarks/` (`bench_numpy.py`, `gen_report.sh`, `merge_report.py`) | **no**: multicore Go against single-threaded NumPy | — | — | NumPy 2.2.4, not the pinned 2.5.x; shell and Python report tooling |
 | go-fft/fft | `docs/perf.md`, `BENCHMARKS.md`, `benchmarks/run.sh`, `report.py`, `cbench/` | — | — | — | FFTW native, numpy, scipy, gonum; shell and Python report tooling |
 | go-simd/floats | `bench/numpycmp` (Go, cobra) | yes | yes, per row | refuses at ≥ 8, **once at start** | mean vs best-of-5 (rule 3) |
-| go-geometry/predicates | `bench/` module (cgo + `predicates.c`) | yes | C and Go sub-benchmarks side by side in one benchmark | none | gap 1.4–3.6× (issue #4) |
+| go-geometry/predicates | `bench/` module (cgo + `predicates.c`) | yes | C and Go sub-benchmarks side by side in one benchmark | none | 1.6–3.3× slower on random records, 1.6–6.9× in the exact stage D, with allocations there; leads: the range guard and `[3]float64` arguments on the fast path, the generic expansion determinant in stages B/D (go-geometry/predicates#4) |
 | go-numerics/optimize, integrate | `benchmarks/run.sh` + `bench_scipy.py` + `summarize.py`; `bench/compare.sh` + `scipy_bench.py`; `tools/*bench` | not checked | not checked | not checked | shell and Python drivers |
-| go-sparse/sparse | `cmd/perfbench`, `ldl/perf_test.go` | not opened | | | AMD-ordered refactor 11–21 % slower than QDLDL (issue #10) |
+| go-sparse/sparse | `cmd/perfbench`, `ldl/perf_test.go` | not opened | | | `ldl` refactor 11–21 % and solve up to 13 % slower than QDLDL v0.1.9 (about 10 instructions per scatter entry against 7, about 40 bounds checks on data-dependent indices); `order.AMD` and the symbolic phase allocate per node; together they make optimize's ADMM setup 2.2–4.9× OSQP's (go-sparse/sparse#10, measured with optimize `tools/qpbench`) |
 | go-approx/interp, poly; go-bignum/bigfloat | Go benchmarks; `bigfloat/cmd/bench` + `oracle/mpmath.go` | not opened beyond the count | | | |
 
 Five repositories drive their comparison with shell or Python scripts. Those scripts are the
@@ -238,10 +238,10 @@ Not kernels, but the same rule:
   `go-statistics/stats/internal/dd` have the same package comment and the same `zz_exptable.go`
   and `zz_logtable.go`. stats already depends on special, so stats imports `special/dd` and
   deletes its copy.
-- **Scatter-add** (the `y[idx[k]] -= a·val[k]` of sparse LDL, where QDLDL leads by 11–21 %) has no
+- **Scatter-add** (the `y[idx[k]] -= a·val[k]` of sparse LDL, where QDLDL's refactor leads by 11–21 %) has no
   vector form on AVX2 or NEON, which have gathers and no scatter (go-simd/histogram's README
   works through the same limit). The QDLDL gap is algorithmic first.
-- **special's 0.19×–0.40× rows** are scalar against scalar: SciPy's ufunc loops are one-thread C
+- **special's 0.07×–0.70× rows** are scalar against scalar: SciPy's ufunc loops are one-thread C
   calling scalar code too. They are profiled before any kernel is written (the cost of
   `math.Exp`/`math.Log` against the C library's, bounds checks, coefficient loops); K1 and K2 are
   what follows if the profile points at elementary functions or polynomial evaluation.
@@ -309,5 +309,8 @@ Opened for this page, at these commits:
 - The inventory also read integrate `d4587b4`, models `62a5776`, interp `23a47aa`, bigfloat
   `6cd7f4c` through `tools/perfinventory`.
 
-Issues go-geometry/predicates#4 and go-sparse/sparse#10 are cited from the campaign brief; the
-GitHub API timed out when they were opened for this page.
+- Issues go-geometry/predicates#4 and go-sparse/sparse#10 (read 2026-11-07).
+
+Filed from this page: go-numerics/special#32 (one double-double package), go-numerics/special#33
+(single-core gap), go-ndarray/ndarray#93 (perf page not on one core), go-scikit/roadmap#27 (W0,
+`refbench`).

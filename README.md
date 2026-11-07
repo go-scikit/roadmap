@@ -46,3 +46,6 @@ and lists what its host must provide; `bib/c-cpp.md` quotes both.
 `go run ./tools/rcount [--cran PACKAGES] <R-source-root>` counts the primitives, internals,
 grammar, opcodes, lines per language and native call sites of an R release tarball, and with a
 CRAN `PACKAGES` index how much of CRAN needs compiled code: the figures `bib/r.md` quotes.
+`go run ./tools/perfinventory [--list] <repo-dir>...` counts the public functions of each repository
+and how they are timed (against a reference, alone, or not at all): the inventory of the
+[performance campaign](docs/performance-campaign.md).

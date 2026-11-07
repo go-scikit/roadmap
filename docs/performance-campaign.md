@@ -109,7 +109,7 @@ What the count is not:
 | go-ndarray/ndarray | `docs/perf.md`, `benchmarks/` (`bench_numpy.py`, `gen_report.sh`, `merge_report.py`) | **no**: multicore Go against single-threaded NumPy | — | — | NumPy 2.2.4, not the pinned 2.5.x; shell and Python report tooling |
 | go-fft/fft | `docs/perf.md`, `BENCHMARKS.md`, `benchmarks/run.sh`, `report.py`, `cbench/` | — | — | — | FFTW native, numpy, scipy, gonum; shell and Python report tooling |
 | go-simd/floats | `bench/numpycmp` (Go, cobra) | yes | yes, per row | refuses at ≥ 8, **once at start** | mean vs best-of-5 (rule 3) |
-| go-geometry/predicates | `bench/` module (cgo + `predicates.c`) | yes | C and Go sub-benchmarks side by side in one benchmark | none | 1.6–3.3× slower on random records, 1.6–6.9× in the exact stage D, with allocations there; leads: the range guard and `[3]float64` arguments on the fast path, the generic expansion determinant in stages B/D (go-geometry/predicates#4) |
+| go-geometry/predicates | `bench/` module (cgo + `predicates.c`) | yes | C and Go sub-benchmarks side by side in one benchmark | none | 1.6–3.3× slower on random records, 1.4–3.6× on the degenerate records that reach the exact stage D, with allocations there (medians of 6, one core, at a 1-minute load of 7.3–8.8, so indicative: the fast-path ratios equal the first measurement; [latest comment of #4](https://github.com/go-geometry/predicates/issues/4#issuecomment-6711751372), which replaces the earlier under-load "up to 6.9×"); leads: the range guard and `[3]float64` arguments on the fast path, the generic expansion determinant in stages B/D (go-geometry/predicates#4) |
 | go-numerics/optimize, integrate | `benchmarks/run.sh` + `bench_scipy.py` + `summarize.py`; `bench/compare.sh` + `scipy_bench.py`; `tools/*bench` | not checked | not checked | not checked | shell and Python drivers |
 | go-sparse/sparse | `cmd/perfbench`, `ldl/perf_test.go` | not opened | | | `ldl` refactor 11–21 % and solve up to 13 % slower than QDLDL v0.1.9 (about 10 instructions per scatter entry against 7, about 40 bounds checks on data-dependent indices); `order.AMD` and the symbolic phase allocate per node; together they make optimize's ADMM setup 2.2–4.9× OSQP's (go-sparse/sparse#10, measured with optimize `tools/qpbench`) |
 | go-approx/interp, poly; go-bignum/bigfloat | Go benchmarks; `bigfloat/cmd/bench` + `oracle/mpmath.go` | not opened beyond the count | | | |
@@ -309,7 +309,7 @@ Opened for this page, at these commits:
 - The inventory also read integrate `d4587b4`, models `62a5776`, interp `23a47aa`, bigfloat
   `6cd7f4c` through `tools/perfinventory`.
 
-- Issues go-geometry/predicates#4 and go-sparse/sparse#10 (read 2026-11-07).
+- Issues go-geometry/predicates#4 (latest comment, 2026-11-07, re-measured on a clean worktree of v0.1.0) and go-sparse/sparse#10 (read 2026-11-07).
 
 Filed from this page: go-numerics/special#32 (one double-double package), go-numerics/special#33
 (single-core gap), go-ndarray/ndarray#93 (perf page not on one core), go-scikit/roadmap#27 (W0,

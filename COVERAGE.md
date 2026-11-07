@@ -64,4 +64,6 @@ go-statistics/models (item 6, waves W0–W12), then items 7–22 of [PLAN.md](PL
 
 ## Rules for every slice
 
+Speed is checked by the [performance campaign](docs/performance-campaign.md): 2081 public functions, 234 of them timed against their reference today, a shared harness, the go-simd kernels to add, and the waves.
+
 Port the reference exactly and validate by equality where the reference is deterministic; measure against the reference on one core and treat any slower row as an open defect; use go-simd kernels without FMA and in the reference's reduction order where bit-parity is claimed; 100 % coverage, fuzzing, README, landing and docs for each release.
